@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zeitmanagement & Priorisierung – Wissensportal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F2;
+    --bg2: #EFECE8;
+    --white: #FFFFFF;
+    --ink: #1A1814;
+    --ink2: #4A4640;
+    --ink3: #8A8480;
+    --accent: #2563EB;
+    --accent-light: #EFF4FF;
+    --accent2: #059669;
+    --accent2-light: #ECFDF5;
+    --warn: #D97706;
+    --warn-light: #FFFBEB;
+    --danger: #DC2626;
+    --danger-light: #FEF2F2;
+    --border: #E2DDD8;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 12px 32px rgba(0,0,0,0.06);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(247,245,242,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+  .nav-inner {
+    max-width: 960px; margin: 0 auto;
+    display: flex; align-items: center; gap: 2rem;
+    height: 56px;
+  }
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1rem; color: var(--ink); text-decoration: none;
+    white-space: nowrap;
+  }
+  .nav-links {
+    display: flex; gap: 0.25rem; list-style: none;
+    overflow-x: auto; flex: 1;
+  }
+  .nav-links a {
+    display: block; padding: 0.35rem 0.75rem;
+    font-size: 0.8rem; font-weight: 500;
+    color: var(--ink2); text-decoration: none;
+    border-radius: 6px; white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-links a:hover { background: var(--bg2); color: var(--ink); }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 960px; margin: 0 auto;
+    padding: clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 3rem) 3rem;
+  }
+  .hero-label {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent);
+    background: var(--accent-light); border-radius: 99px;
+    padding: 0.3rem 0.85rem; margin-bottom: 1.25rem;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    line-height: 1.15; color: var(--ink);
+    max-width: 700px; margin-bottom: 1rem;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero-sub {
+    font-size: 1rem; color: var(--ink2); max-width: 560px; margin-bottom: 2.5rem;
+  }
+  .stats-row {
+    display: flex; flex-wrap: wrap; gap: 1rem;
+  }
+  .stat-chip {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 0.75rem 1.25rem;
+    display: flex; flex-direction: column; gap: 0.15rem;
+    box-shadow: var(--shadow);
+  }
+  .stat-chip strong {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem; color: var(--accent); line-height: 1;
+  }
+  .stat-chip span { font-size: 0.75rem; color: var(--ink3); }
+
+  /* ── SECTIONS ── */
+  section {
+    max-width: 960px; margin: 0 auto;
+    padding: 3.5rem clamp(1rem, 4vw, 3rem);
+    border-top: 1px solid var(--border);
+  }
+  .section-label {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink3); margin-bottom: 0.5rem;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: var(--ink); margin-bottom: 0.5rem;
+  }
+  .section-desc {
+    color: var(--ink2); font-size: 0.9rem; margin-bottom: 2rem; max-width: 580px;
+  }
+
+  /* ── EISENHOWER ── */
+  .eis-intro {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.25rem 1.5rem;
+    font-size: 0.88rem; color: var(--ink2); margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  .matrix-wrap {
+    display: grid; grid-template-rows: auto 1fr 1fr;
+  }
+  .matrix-header {
+    display: grid; grid-template-columns: 120px 1fr 1fr;
+    margin-bottom: 0.25rem;
+  }
+  .matrix-header-cell {
+    text-align: center; font-size: 0.72rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink3);
+    padding: 0.5rem;
+  }
+  .matrix-row {
+    display: grid; grid-template-columns: 120px 1fr 1fr; gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .matrix-row-label {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--ink3); writing-mode: vertical-rl;
+    text-orientation: mixed; transform: rotate(180deg);
+  }
+  .quad {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.25rem 1.5rem;
+    cursor: pointer; transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+    box-shadow: var(--shadow); position: relative; overflow: hidden;
+    min-height: 160px;
+  }
+  .quad::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    right: 0; height: 3px;
+  }
+  .quad:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .quad-q1::before { background: var(--danger); }
+  .quad-q2::before { background: var(--accent); }
+  .quad-q3::before { background: var(--warn); }
+  .quad-q4::before { background: var(--ink3); }
+  .quad-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem; line-height: 1; color: var(--border); margin-bottom: 0.5rem;
+  }
+  .quad h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .quad p { font-size: 0.82rem; color: var(--ink2); line-height: 1.5; margin-bottom: 0.75rem; }
+  .quad-badge {
+    display: inline-block; font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.25rem 0.65rem; border-radius: 99px;
+  }
+  .q1-badge { background: var(--danger-light); color: var(--danger); }
+  .q2-badge { background: var(--accent-light); color: var(--accent); }
+  .q3-badge { background: var(--warn-light); color: var(--warn); }
+  .q4-badge { background: var(--bg2); color: var(--ink3); }
+
+  /* Detail panel */
+  .quad-detail {
+    display: none; margin-top: 0.75rem; padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.82rem; color: var(--ink2); line-height: 1.6;
+  }
+  .quad.open .quad-detail { display: block; }
+  .quad.open { box-shadow: var(--shadow-md); border-color: currentColor; }
+  .quad-q1.open { border-color: var(--danger); }
+  .quad-q2.open { border-color: var(--accent); }
+  .quad-q3.open { border-color: var(--warn); }
+  .quad-q4.open { border-color: var(--ink3); }
+
+  /* ── KONZEPTE GRID ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem;
+    box-shadow: var(--shadow); transition: box-shadow 0.2s, transform 0.2s;
+    cursor: default;
+  }
+  .card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .card-icon { font-size: 1.6rem; margin-bottom: 0.75rem; }
+  .card-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem; }
+  .card-sub { font-size: 0.72rem; color: var(--ink3); margin-bottom: 0.75rem; }
+  .card-body { font-size: 0.83rem; color: var(--ink2); line-height: 1.6; }
+  .card-formula {
+    margin-top: 1rem; background: var(--bg); border-radius: var(--radius-sm);
+    padding: 0.5rem 0.75rem; font-size: 0.75rem; font-weight: 600;
+    color: var(--accent); border-left: 3px solid var(--accent);
+  }
+
+  /* ── FEHLER ── */
+  .fehler-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .fehler-item {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.25rem 1.5rem;
+    box-shadow: var(--shadow); display: grid;
+    grid-template-columns: 2rem 1fr; gap: 1rem; align-items: start;
+  }
+  .fehler-num {
+    font-family: 'DM Serif Display', serif; font-size: 1.4rem;
+    color: var(--border); line-height: 1; padding-top: 0.1rem;
+  }
+  .fehler-content h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.35rem; }
+  .fehler-content p { font-size: 0.83rem; color: var(--ink2); margin-bottom: 0.5rem; }
+  .fehler-tip {
+    font-size: 0.8rem; color: var(--accent2);
+    background: var(--accent2-light);
+    border-radius: var(--radius-sm); padding: 0.5rem 0.75rem;
+    font-weight: 500;
+  }
+
+  /* ── TOOL ── */
+  .tool-box {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 2rem;
+    box-shadow: var(--shadow);
+  }
+  .tool-q { margin-bottom: 1.5rem; }
+  .tool-q label { display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.6rem; }
+  .tool-q input[type="text"] {
+    width: 100%; padding: 0.7rem 1rem;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-family: inherit; font-size: 0.88rem; background: var(--bg);
+    color: var(--ink); outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .tool-q input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+  }
+  .radio-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .radio-btn {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.55rem 1rem; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); cursor: pointer;
+    font-size: 0.83rem; font-weight: 500; color: var(--ink2);
+    background: var(--bg); transition: all 0.15s; user-select: none;
+  }
+  .radio-btn.selected {
+    border-color: var(--accent); background: var(--accent-light);
+    color: var(--accent);
+  }
+  .tool-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--accent); color: #fff; border: none;
+    border-radius: var(--radius-sm); padding: 0.7rem 1.5rem;
+    font-family: inherit; font-size: 0.88rem; font-weight: 600;
+    cursor: pointer; transition: background 0.15s, transform 0.1s;
+  }
+  .tool-btn:hover { background: #1D4ED8; }
+  .tool-btn:active { transform: scale(0.98); }
+  .tool-result {
+    display: none; margin-top: 1.5rem; padding: 1.5rem;
+    border-radius: var(--radius); border: 2px solid var(--accent);
+    background: var(--accent-light);
+  }
+  .tool-result.show { display: block; }
+  .result-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+  .result-q-label {
+    font-size: 2rem; font-family: 'DM Serif Display', serif;
+    line-height: 1; padding: 0.5rem 0.85rem;
+    border-radius: var(--radius-sm); font-weight: 400;
+  }
+  .result-q-title { font-size: 1.1rem; font-weight: 600; }
+  .result-q-badge { font-size: 0.75rem; font-weight: 600; }
+  .result-body { font-size: 0.88rem; color: var(--ink2); line-height: 1.6; }
+  .result-task {
+    background: var(--white); border-radius: var(--radius-sm);
+    padding: 0.6rem 1rem; font-weight: 500; margin-bottom: 0.75rem;
+    border: 1px solid var(--border); font-size: 0.88rem;
+    color: var(--ink); font-style: italic;
+  }
+
+  /* ── TIPPS ── */
+  .tipps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+  .tipp-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.25rem 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  .tipp-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .tipp-card p { font-size: 0.82rem; color: var(--ink2); line-height: 1.55; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border); margin-top: 3rem;
+    padding: 1.5rem clamp(1rem, 4vw, 3rem);
+    text-align: center; font-size: 0.75rem; color: var(--ink3);
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .matrix-header { grid-template-columns: 40px 1fr 1fr; }
+    .matrix-row { grid-template-columns: 40px 1fr 1fr; }
+    .matrix-row-label { font-size: 0.6rem; }
+    .stat-chip strong { font-size: 1.2rem; }
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero { animation: fadeUp 0.5s ease both; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Wissensportal</a>
+    <ul class="nav-links">
+      <li><a href="#matrix">Matrix</a></li>
+      <li><a href="#konzepte">Konzepte</a></li>
+      <li><a href="#fehler">Fehler</a></li>
+      <li><a href="#tool">Tool</a></li>
+      <li><a href="#tipps">Tipps</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">⏱ Zeitmanagement &amp; Priorisierung</div>
+  <h1>Was ist wirklich <em>wichtig?</em></h1>
+  <p class="hero-sub">
+    Von der Eisenhower-Matrix bis zu kognitiven Fallen — Frameworks und Methoden für strukturiertes Priorisieren im Berufsalltag.
+  </p>
+  <div class="stats-row">
+    <div class="stat-chip"><strong>4</strong><span>Quadranten</span></div>
+    <div class="stat-chip"><strong>80 %</strong><span>Zeit in Q2 = Erfolg</span></div>
+    <div class="stat-chip"><strong>23 min</strong><span>Fokusverlust je Unterbrechung</span></div>
+    <div class="stat-chip"><strong>7</strong><span>Klassische Fehler</span></div>
+  </div>
+</div>
+
+<!-- 01 MATRIX -->
+<section id="matrix">
+  <div class="section-label">01 — Das Fundament</div>
+  <div class="section-title">Eisenhower-Matrix</div>
+  <p class="section-desc">Entwickelt von US-Präsident Dwight D. Eisenhower, populär gemacht durch Stephen Coveys „7 Wege zur Effektivität". Klicke auf einen Quadranten für Details.</p>
+
+  <div class="eis-intro">
+    Alle eingehenden Aufgaben lassen sich nach zwei Kriterien sortieren: <strong>Wichtigkeit</strong> (Impact auf Ziele / KPIs) und <strong>Dringlichkeit</strong> (harte Deadline). Die Kombination ergibt vier Handlungsoptionen.
+  </div>
+
+  <div class="matrix-wrap">
+    <div class="matrix-header">
+      <div></div>
+      <div class="matrix-header-cell">Dringend</div>
+      <div class="matrix-header-cell">Nicht dringend</div>
+    </div>
+    <div class="matrix-row">
+      <div class="matrix-row-label">Wichtig</div>
+      <!-- Q1 -->
+      <div class="quad quad-q1" onclick="toggleQuad(this)">
+        <div class="quad-num">I</div>
+        <h3>Sofort erledigen</h3>
+        <p>Krisen, echte Deadlines, Notfälle. Hier muss gehandelt werden — dauerhaft hier zu leben bedeutet: System ist kaputt.</p>
+        <span class="quad-badge q1-badge">DO IT NOW</span>
+        <div class="quad-detail">
+          Typische Q1-Aufgaben: Maschinenausfall, Kundenbeschwerde mit Eskalation, abgelaufene Frist. Q1 soll klein bleiben — je mehr Q2 betrieben wird (Prävention, Planung), desto weniger Q1 entsteht. Wer dauerhaft im Feuerlöschmodus lebt, hat ein systemisches Problem.
+        </div>
+      </div>
+      <!-- Q2 -->
+      <div class="quad quad-q2" onclick="toggleQuad(this)">
+        <div class="quad-num">II</div>
+        <h3>Planen &amp; Terminieren</h3>
+        <p>Prävention, Strategie, Weiterentwicklung, Beziehungen. Der wichtigste Quadrant — und der am meisten vernachlässigte.</p>
+        <span class="quad-badge q2-badge">SCHEDULE IT</span>
+        <div class="quad-detail">
+          Typische Q2-Aufgaben: FMEA-Review, Audit-Vorbereitung, Lieferantenentwicklung, Prozessverbesserung, Schulungsplanung. Diese Aufgaben erzeugen keinen Druck — deshalb werden sie verdrängt. Feste Kalenderblöcke setzen und nicht verschieben.
+        </div>
+      </div>
+    </div>
+    <div class="matrix-row">
+      <div class="matrix-row-label">Unwichtig</div>
+      <!-- Q3 -->
+      <div class="quad quad-q3" onclick="toggleQuad(this)">
+        <div class="quad-num">III</div>
+        <h3>Delegieren</h3>
+        <p>Dringend, aber nicht für dich wichtig. Klassische Zeitfresser: unnötige Meetings, Anfragen anderer, Unterbrechungen.</p>
+        <span class="quad-badge q3-badge">DELEGATE</span>
+        <div class="quad-detail">
+          Q3 fühlt sich produktiv an — ist es aber nicht. Das Telefon klingelt, eine Kollegin fragt, ein Meeting erscheint im Kalender. Alles dringend — aber keines davon bringt dich deinen eigenen Zielen näher. Konsequent delegieren oder ablehnen.
+        </div>
+      </div>
+      <!-- Q4 -->
+      <div class="quad quad-q4" onclick="toggleQuad(this)">
+        <div class="quad-num">IV</div>
+        <h3>Streichen</h3>
+        <p>Keine Dringlichkeit, kein Mehrwert. Konsequent eliminieren — ohne schlechtes Gewissen.</p>
+        <span class="quad-badge q4-badge">ELIMINATE</span>
+        <div class="quad-detail">
+          Endloses Scrollen, Reports die niemand liest, Doppeldokumentation, Meetings ohne Agenda und Ergebnis. Diese Tätigkeiten fühlen sich manchmal wie Erholung an — sind es aber meist nicht. Bewusst hinterfragen: Was passiert, wenn ich das weglasse?
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 KONZEPTE -->
+<section id="konzepte">
+  <div class="section-label">02 — Erweiterte Frameworks</div>
+  <div class="section-title">Verwandte Konzepte</div>
+  <p class="section-desc">Bewährte Methoden aus Wissenschaft und Praxis — als Ergänzung zur Eisenhower-Matrix.</p>
+
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon">🎯</div>
+      <div class="card-title">Pareto-Prinzip</div>
+      <div class="card-sub">80/20-Regel · Vilfredo Pareto</div>
+      <div class="card-body">80 % der Ergebnisse entstehen durch 20 % der Aktivitäten. Diese 20 % identifizieren — und den Rest reduzieren oder eliminieren. Gilt für Kunden, Aufgaben, Fehlerquellen.</div>
+      <div class="card-formula">20 % Input → 80 % Output</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🐸</div>
+      <div class="card-title">Eat the Frog</div>
+      <div class="card-sub">Mark Twain · Brian Tracy</div>
+      <div class="card-body">Die unangenehmsте, wichtigste Aufgabe des Tages zuerst erledigen. Morgens ist die Willenskraft am stärksten. Wer die schwere Aufgabe früh abschließt, hat danach freien Kopf.</div>
+      <div class="card-formula">Schwerstes zuerst → Energie für den Rest</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">⏱️</div>
+      <div class="card-title">Parkinsons Gesetz</div>
+      <div class="card-sub">C. Northcote Parkinson · 1955</div>
+      <div class="card-body">Arbeit dehnt sich aus, um die verfügbare Zeit zu füllen. Wer drei Stunden gibt, braucht drei Stunden. Wer 45 Minuten gibt, braucht 45 Minuten. Bewusst knappe Deadlines setzen.</div>
+      <div class="card-formula">Zeit gegeben = Zeit gebraucht</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🍅</div>
+      <div class="card-title">Pomodoro-Technik</div>
+      <div class="card-sub">Francesco Cirillo · 1980er</div>
+      <div class="card-body">25 Min fokussiert arbeiten, 5 Min Pause. Nach 4 Runden: 20–30 Min Pause. Schützt vor Unterbrechungen, macht Fortschritt messbar, bekämpft Prokrastination.</div>
+      <div class="card-formula">25 min Fokus + 5 min Pause × 4</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧱</div>
+      <div class="card-title">Time Blocking</div>
+      <div class="card-sub">Deep Work · Cal Newport</div>
+      <div class="card-body">Kalenderblöcke für Aufgabentypen reservieren. Kein reaktives Arbeiten — stattdessen feste Blöcke für tiefe Arbeit, Mails, Meetings und Puffer. Schützt Q2 vor Q1-Invasionen.</div>
+      <div class="card-formula">Kalender = Arbeitsspiegel</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📥</div>
+      <div class="card-title">GTD — Getting Things Done</div>
+      <div class="card-sub">David Allen · 2001</div>
+      <div class="card-body">Alles aus dem Kopf in ein System: Capture → Clarify → Organize → Reflect → Engage. Kernfrage: „Welcher ist der nächste konkrete Schritt?" Reduziert mentale Last.</div>
+      <div class="card-formula">Kopf leer → System vertrauen → Handeln</div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 FEHLER -->
+<section id="fehler">
+  <div class="section-label">03 — Typische Stolperstellen</div>
+  <div class="section-title">7 klassische Fehler</div>
+  <p class="section-desc">Die häufigsten Muster, die gutes Zeitmanagement untergraben — und wie man sie behebt.</p>
+
+  <div class="fehler-list">
+    <div class="fehler-item">
+      <div class="fehler-num">01</div>
+      <div class="fehler-content">
+        <h4>Dringend ≠ Wichtig verwechseln</h4>
+        <p>Der häufigste Fehler. Dringlichkeit erzeugt Stress und das Gefühl, produktiv zu sein — ist aber oft Illusion. Viele verbringen 80 % in Q1 und Q3.</p>
+        <div class="fehler-tip">→ Vor jeder Aufgabe fragen: „Was passiert, wenn ich das nicht tue?"</div>
+      </div>
+    </div>
+    <div class="fehler-item">
+      <div class="fehler-num">02</div>
+      <div class="fehler-content">
+        <h4>Kein Puffer eingeplant</h4>
+        <p>Ein vollgeplanter Kalender bricht beim ersten Notfall zusammen. Wer auf 100 % plant, hat 0 % Reaktionsfähigkeit.</p>
+        <div class="fehler-tip">→ Max. 60–70 % der Zeit verplanen. Rest ist Puffer — kein Luxus, sondern Pflicht.</div>
+      </div>
+    </div>
+    <div class="fehler-item">
+      <div class="fehler-num">03</div>
+      <div class="fehler-content">
+        <h4>Q2 wird immer verschoben</h4>
+        <p>Prävention, Prozessverbesserung, Weiterbildung — alles wichtig, nie dringend. Wird deshalb systematisch verdrängt. Führt langfristig zu mehr Q1-Krisen.</p>
+        <div class="fehler-tip">→ Q2-Blöcke im Kalender wie Meetings behandeln — unverrückbar.</div>
+      </div>
+    </div>
+    <div class="fehler-item">
+      <div class="fehler-num">04</div>
+      <div class="fehler-content">
+        <h4>Multitasking</h4>
+        <p>Jeder Taskwechsel kostet 15–23 Minuten Wiederanlaufzeit. Wer 10× täglich wechselt, verliert bis zu 4 Stunden produktive Zeit.</p>
+        <div class="fehler-tip">→ Ähnliche Aufgaben bündeln (Batching). In einem Block erledigen.</div>
+      </div>
+    </div>
+    <div class="fehler-item">
+      <div class="fehler-num">05</div>
+      <div class="fehler-content">
+        <h4>Zu lange To-do-Listen</h4>
+        <p>Eine Liste mit 30 Punkten erzeugt Lähmung. Am Ende: 5 erledigt, 25 offen — schlechtes Gefühl, trotz Arbeit.</p>
+        <div class="fehler-tip">→ Max. 3 „Must-do" pro Tag definieren. Alles andere ist Bonus.</div>
+      </div>
+    </div>
+    <div class="fehler-item">
+      <div class="fehler-num">06</div>
+      <div class="fehler-content">
+        <h4>Nein sagen fällt schwer</h4>
+        <p>Jedes „Ja" zu einer fremden Aufgabe ist ein „Nein" zur eigenen Priorität. Besonders in Firmen mit flacher Hierarchie wird man schnell zum Puffer für alle.</p>
+        <div class="fehler-tip">→ „Ich schaue es mir an und melde mich bis X zurück" — nie sofort zusagen.</div>
+      </div>
+    </div>
+    <div class="fehler-item">
+      <div class="fehler-num">07</div>
+      <div class="fehler-content">
+        <h4>Kein Tagesabschluss-Ritual</h4>
+        <p>Wer den Tag nicht bewusst beendet, trägt offene Aufgaben im Kopf nach Hause. Das kostet Erholung und Schlafqualität.</p>
+        <div class="fehler-tip">→ 5 Min täglich: offene Punkte notieren, morgen planen, mental abschließen.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 TOOL -->
+<section id="tool">
+  <div class="section-label">04 — Interaktiv</div>
+  <div class="section-title">Aufgaben klassifizieren</div>
+  <p class="section-desc">Zwei Fragen — das Tool zeigt den richtigen Quadranten und eine Handlungsempfehlung.</p>
+
+  <div class="tool-box">
+    <div class="tool-q">
+      <label for="task-input">Aufgabe beschreiben</label>
+      <input type="text" id="task-input" placeholder="z.B. Audit-Vorbereitung für nächsten Monat ...">
+    </div>
+
+    <div class="tool-q">
+      <label>Ist es wichtig? <span style="color:var(--ink3);font-weight:400">(echter Impact auf Ziele / KPIs)</span></label>
+      <div class="radio-group">
+        <div class="radio-btn" id="btn-w-yes" onclick="select('wichtig','yes')">✓ Ja, wichtig</div>
+        <div class="radio-btn" id="btn-w-no"  onclick="select('wichtig','no')">✗ Nein, unwichtig</div>
+      </div>
+    </div>
+
+    <div class="tool-q">
+      <label>Ist es dringend? <span style="color:var(--ink3);font-weight:400">(harte Deadline in den nächsten Stunden/heute)</span></label>
+      <div class="radio-group">
+        <div class="radio-btn" id="btn-d-yes" onclick="select('dringend','yes')">✓ Ja, dringend</div>
+        <div class="radio-btn" id="btn-d-no"  onclick="select('dringend','no')">✗ Nein, nicht dringend</div>
+      </div>
+    </div>
+
+    <button class="tool-btn" onclick="classify()">Klassifizieren →</button>
+
+    <div class="tool-result" id="tool-result">
+      <div class="result-header">
+        <div class="result-q-label" id="res-qlabel">I</div>
+        <div>
+          <div class="result-q-title" id="res-qtitle">Sofort erledigen</div>
+          <div class="result-q-badge" id="res-qbadge">DO IT NOW</div>
+        </div>
+      </div>
+      <div class="result-task" id="res-task"></div>
+      <div class="result-body" id="res-body"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 TIPPS -->
+<section id="tipps">
+  <div class="section-label">05 — Praxis</div>
+  <div class="section-title">Hinweise für den Alltag</div>
+  <p class="section-desc">Verhaltensweisen, die strukturiertes Priorisieren langfristig verankern.</p>
+
+  <div class="tipps-grid">
+    <div class="tipp-card">
+      <h4>Priorisierung kommunizieren</h4>
+      <p>Offen über die eigene Einordnung sprechen: „Das ist für mich Q2 — ich terminiere es auf Freitag." Macht Entscheidungen transparent und nachvollziehbar.</p>
+    </div>
+    <div class="tipp-card">
+      <h4>Wochenplanung am Freitag</h4>
+      <p>10–15 Minuten vor dem Wochenende: Top-3 der nächsten Woche definieren, Q2-Blöcke reservieren, Puffer einplanen. Wer montags planlos startet, endet in Q1.</p>
+    </div>
+    <div class="tipp-card">
+      <h4>Energie-Management</h4>
+      <p>Nicht nur Zeit managen — auch Energie. Kognitive Aufgaben morgens, Routinearbeit nachmittags. Der biologische Rhythmus ist real und nutzbar.</p>
+    </div>
+    <div class="tipp-card">
+      <h4>Ablehnen ohne Verweigerung</h4>
+      <p>„Ich nehme das auf — welche meiner aktuellen Prioritäten soll ich dafür zurückstellen?" Macht den Trade-off sichtbar, ohne direkt abzulehnen.</p>
+    </div>
+    <div class="tipp-card">
+      <h4>Fokuszeiten schützen</h4>
+      <p>Feste Blöcke für tiefe Arbeit im Kalender sichtbar machen. Wer für alle immer erreichbar ist, arbeitet für alle außer für seine eigenen Ziele.</p>
+    </div>
+    <div class="tipp-card">
+      <h4>Wöchentliche Retrospektive</h4>
+      <p>5 Min Freitagabend: Wo war ich letzte Woche? Q1-Dauerbrenner bedeutet: Ursache beseitigen, nicht Symptome löschen. Q2 zu kurz = nächste Woche mehr Q1.</p>
+    </div>
+    <div class="tipp-card">
+      <h4>Systemperspektive einnehmen</h4>
+      <p>Wer versteht, welche Aufgaben für die Organisation wirklich Wert schaffen, kann besser priorisieren als jemand, der nur seinen Bereich sieht.</p>
+    </div>
+    <div class="tipp-card">
+      <h4>Kaizen-Mindset</h4>
+      <p>Kleine Prozessverbesserungen kontinuierlich einbauen — das ist Q2 in Reinform. Langfristig der größte Hebel für nachhaltige Leistung.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="index.html">← Zurück zur Übersicht</a> &nbsp;·&nbsp;
+  Zeitmanagement · Eisenhower · Pareto · GTD · Deep Work
+</footer>
+
+<script>
+  // ── Eisenhower toggle ──
+  function toggleQuad(el) {
+    const wasOpen = el.classList.contains('open');
+    document.querySelectorAll('.quad').forEach(q => q.classList.remove('open'));
+    if (!wasOpen) el.classList.add('open');
+  }
+
+  // ── Tool selections ──
+  const sel = { wichtig: null, dringend: null };
+
+  function select(dim, val) {
+    sel[dim] = val;
+    if (dim === 'wichtig') {
+      document.getElementById('btn-w-yes').classList.toggle('selected', val === 'yes');
+      document.getElementById('btn-w-no').classList.toggle('selected', val === 'no');
+    } else {
+      document.getElementById('btn-d-yes').classList.toggle('selected', val === 'yes');
+      document.getElementById('btn-d-no').classList.toggle('selected', val === 'no');
+    }
+  }
+
+  const quads = {
+    Q1: {
+      label: 'I', title: 'Sofort erledigen', badge: 'DO IT NOW',
+      bg: '#FEF2F2', border: '#DC2626', color: '#DC2626',
+      body: 'Diese Aufgabe hat echten Impact und eine harte Deadline — sie gehört direkt auf die Tagesagenda. Q1 sollte der Ausnahmefall sein. Wenn viele Aufgaben hier landen, lohnt ein Blick auf Prävention und Planung (Q2).'
+    },
+    Q2: {
+      label: 'II', title: 'Planen & Terminieren', badge: 'SCHEDULE IT',
+      bg: '#EFF4FF', border: '#2563EB', color: '#2563EB',
+      body: 'Wichtig für die Ziele, aber kein akuter Zeitdruck — genau deshalb wird Q2 oft verdrängt. Konkreten Termin festlegen und im Kalender blockieren. Wer Q2 konsequent pflegt, hat langfristig weniger Q1.'
+    },
+    Q3: {
+      label: 'III', title: 'Delegieren', badge: 'DELEGATE',
+      bg: '#FFFBEB', border: '#D97706', color: '#D97706',
+      body: 'Fühlt sich dringend an — aber hat keinen echten Impact auf deine Ziele. Klassischer Zeitfresser. Delegieren oder ablehnen. Falls nicht möglich: minimaler Aufwand, dann weiter zu Q2.'
+    },
+    Q4: {
+      label: 'IV', title: 'Streichen', badge: 'ELIMINATE',
+      bg: '#F7F5F2', border: '#8A8480', color: '#8A8480',
+      body: 'Weder wichtig noch dringend — klarer Kandidat zum Streichen. Konsequent hinterfragen: Was passiert wirklich, wenn das wegfällt? Meist: nichts. Ohne schlechtes Gewissen eliminieren.'
+    }
+  };
+
+  function classify() {
+    if (!sel.wichtig || !sel.dringend) {
+      alert('Bitte beide Fragen beantworten.');
+      return;
+    }
+    const task = document.getElementById('task-input').value.trim();
+    const key = sel.wichtig === 'yes' && sel.dringend === 'yes' ? 'Q1'
+              : sel.wichtig === 'yes' && sel.dringend === 'no'  ? 'Q2'
+              : sel.wichtig === 'no'  && sel.dringend === 'yes' ? 'Q3' : 'Q4';
+    const q = quads[key];
+    const result = document.getElementById('tool-result');
+
+    document.getElementById('res-qlabel').textContent = q.label;
+    document.getElementById('res-qtitle').textContent = q.title;
+    document.getElementById('res-qbadge').textContent = q.badge;
+    document.getElementById('res-task').textContent = task || '(keine Aufgabe eingegeben)';
+    document.getElementById('res-body').textContent = q.body;
+
+    result.style.background = q.bg;
+    result.style.borderColor = q.border;
+    document.getElementById('res-qlabel').style.color = q.color;
+    document.getElementById('res-qlabel').style.background = q.bg;
+    document.getElementById('res-qtitle').style.color = q.color;
+    document.getElementById('res-qbadge').style.color = q.color;
+
+    result.classList.add('show');
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+</body>
+</html>
