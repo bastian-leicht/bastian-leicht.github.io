@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FMEA-Tool (AIAG &amp; VDA 2019) – Bastian Leicht</title>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<style>
+  @font-face {
+    font-family: 'Playfair Display';
+    src: url('../fonts/playfair-display-400.woff2') format('woff2');
+    font-weight: 400; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Playfair Display';
+    src: url('../fonts/playfair-display-600.woff2') format('woff2');
+    font-weight: 600; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Playfair Display';
+    src: url('../fonts/playfair-display-700.woff2') format('woff2');
+    font-weight: 700; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Lato';
+    src: url('../fonts/lato-300.woff2') format('woff2');
+    font-weight: 300; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Lato';
+    src: url('../fonts/lato-400.woff2') format('woff2');
+    font-weight: 400; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Lato';
+    src: url('../fonts/lato-700.woff2') format('woff2');
+    font-weight: 700; font-display: swap;
+  }
+
+  :root {
+    --bg: #f7f5f2;
+    --white: #ffffff;
+    --dark: #1a1a1a;
+    --mid: #4a4a4a;
+    --light: #8a8a8a;
+    --accent: #2c5f8a;
+    --accent-light: #e8f0f8;
+    --border: #e5e0d8;
+    --ap-h-bg: #fef2f2;
+    --ap-h-text: #b91c1c;
+    --ap-h-border: #fca5a5;
+    --ap-m-bg: #fffbeb;
+    --ap-m-text: #b45309;
+    --ap-m-border: #fcd34d;
+    --ap-l-bg: #f0fdf4;
+    --ap-l-text: #15803d;
+    --ap-l-border: #86efac;
+    --ap-none-bg: #f3f4f6;
+    --ap-none-text: #6b7280;
+    --ap-none-border: #d1d5db;
+    --th-group-old: #1a1a1a;
+    --th-group-mass: #234d72;
+    --th-group-new: #1a3a1a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--dark);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--dark);
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 36px; }
+  .nav-links a {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--light);
+    text-decoration: none;
+    transition: color 0.2s;
+    font-weight: 700;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  /* PAGE HEADER */
+  .page-header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 60px 50px;
+  }
+  .page-header-inner { max-width: 1400px; margin: 0 auto; }
+  .page-tag {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .page-tag::before {
+    content: '';
+    display: block;
+    width: 30px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--dark);
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+  .page-header h1 em { font-style: italic; color: var(--accent); }
+  .page-header p {
+    font-size: 16px;
+    color: var(--mid);
+    max-width: 640px;
+    line-height: 1.8;
+  }
+
+  /* MAIN */
+  .main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 50px 60px 80px;
+  }
+
+  /* INFO CARDS */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .info-grid + .info-grid { margin-bottom: 44px; }
+  .info-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px 22px;
+  }
+  .info-card-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--light);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .info-card-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--dark);
+  }
+  .info-card-value.high  { color: var(--ap-h-text); }
+  .info-card-value.medium { color: var(--ap-m-text); }
+  .info-card-value.low   { color: var(--ap-l-text); }
+  .info-card-value.offen { color: var(--ap-h-text); }
+  .info-card-value.bearb { color: var(--ap-m-text); }
+  .info-card-value.abges { color: var(--ap-l-text); }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-family: 'Lato', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: var(--white); }
+  .btn-primary:hover { background: #234d72; }
+  .btn-secondary {
+    background: var(--white);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .btn-secondary:hover { background: var(--accent-light); }
+  .btn-danger {
+    background: transparent;
+    color: var(--ap-h-text);
+    border: 1px solid var(--ap-h-border);
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+  .btn-danger:hover { background: var(--ap-h-bg); }
+  .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* TABLE */
+  .table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--white);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    margin-bottom: 32px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1900px;
+  }
+
+  /* GROUP HEADER ROW */
+  thead tr.th-groups th {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+  thead tr.th-groups th.g-id   { background: var(--dark); }
+  thead tr.th-groups th.g-old  { background: #1e3a52; }
+  thead tr.th-groups th.g-mass { background: #1a3350; color: rgba(255,255,255,0.8); }
+  thead tr.th-groups th.g-new  { background: #1a3020; color: rgba(255,255,255,0.8); }
+  thead tr.th-groups th.g-act  { background: var(--dark); }
+
+  /* COLUMN HEADER ROW */
+  thead tr.th-cols th {
+    background: var(--dark);
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  thead tr.th-cols th.g-old-col  { background: #1e3a52; }
+  thead tr.th-cols th.g-mass-col { background: #1a3350; }
+  thead tr.th-cols th.g-new-col  { background: #1a3020; }
+
+  thead th .th-sub {
+    display: block;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.4px;
+    color: rgba(255,255,255,0.4);
+    text-transform: none;
+    margin-top: 2px;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #faf9f7; }
+
+  tbody td {
+    padding: 8px 10px;
+    vertical-align: middle;
+  }
+
+  .td-num {
+    text-align: center;
+    font-size: 13px;
+    color: var(--light);
+    font-weight: 700;
+    width: 36px;
+  }
+
+  td input[type="text"],
+  td input[type="number"] {
+    width: 100%;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 6px 9px;
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--dark);
+    background: transparent;
+    transition: all 0.15s;
+    outline: none;
+  }
+  td input[type="text"]:hover,
+  td input[type="number"]:hover {
+    background: var(--bg);
+    border-color: var(--border);
+  }
+  td input[type="text"]:focus,
+  td input[type="number"]:focus {
+    background: var(--white);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(44,95,138,0.1);
+  }
+  td input[type="number"] {
+    width: 58px;
+    text-align: center;
+    font-weight: 700;
+  }
+  td input[type="number"]:invalid {
+    border-color: var(--ap-h-border);
+    background: var(--ap-h-bg);
+  }
+  td input[type="date"] {
+    width: 100%;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 6px 9px;
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--dark);
+    background: transparent;
+    transition: all 0.15s;
+    outline: none;
+    cursor: pointer;
+  }
+  td input[type="date"]:hover {
+    background: var(--bg);
+    border-color: var(--border);
+  }
+  td input[type="date"]:focus {
+    background: var(--white);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(44,95,138,0.1);
+  }
+
+  .col-text  { min-width: 150px; }
+  .col-bae   { width: 70px; text-align: center; }
+  .col-ap    { width: 110px; text-align: center; }
+  .col-status{ width: 150px; text-align: center; }
+  .col-verant{ min-width: 130px; }
+  .col-termin{ width: 130px; }
+  .col-action{ width: 52px; text-align: center; }
+
+  /* AP BADGE */
+  .ap-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .ap-badge::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .ap-h { background: var(--ap-h-bg); color: var(--ap-h-text); border-color: var(--ap-h-border); }
+  .ap-h::before { background: var(--ap-h-text); }
+  .ap-m { background: var(--ap-m-bg); color: var(--ap-m-text); border-color: var(--ap-m-border); }
+  .ap-m::before { background: var(--ap-m-text); }
+  .ap-l { background: var(--ap-l-bg); color: var(--ap-l-text); border-color: var(--ap-l-border); }
+  .ap-l::before { background: var(--ap-l-text); }
+  .ap-none { background: var(--ap-none-bg); color: var(--ap-none-text); border-color: var(--ap-none-border); }
+  .ap-none::before { background: var(--ap-none-text); }
+
+  /* STATUS SELECT */
+  .status-select {
+    width: 100%;
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid;
+    cursor: pointer;
+    font-family: 'Lato', sans-serif;
+    outline: none;
+    text-align: center;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: all 0.15s;
+  }
+  .status-offen       { background: var(--ap-h-bg); color: var(--ap-h-text); border-color: var(--ap-h-border); }
+  .status-bearbeitung { background: var(--ap-m-bg); color: var(--ap-m-text); border-color: var(--ap-m-border); }
+  .status-abgeschlossen { background: var(--ap-l-bg); color: var(--ap-l-text); border-color: var(--ap-l-border); }
+
+  /* LEGEND (AP text legend) */
+  .legend {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+  }
+  .legend h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 20px;
+  }
+  .legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+  .legend-item h4 { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+  .legend-item p  { font-size: 12px; color: var(--light); line-height: 1.5; }
+  .legend-item.high   { background: var(--ap-h-bg); border-color: var(--ap-h-border); }
+  .legend-item.high h4 { color: var(--ap-h-text); }
+  .legend-item.high .legend-dot { background: var(--ap-h-text); }
+  .legend-item.medium { background: var(--ap-m-bg); border-color: var(--ap-m-border); }
+  .legend-item.medium h4 { color: var(--ap-m-text); }
+  .legend-item.medium .legend-dot { background: var(--ap-m-text); }
+  .legend-item.low    { background: var(--ap-l-bg); border-color: var(--ap-l-border); }
+  .legend-item.low h4 { color: var(--ap-l-text); }
+  .legend-item.low .legend-dot { background: var(--ap-l-text); }
+
+  /* COLLAPSIBLE AP MATRIX */
+  .ap-matrix-details {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 44px;
+    overflow: hidden;
+  }
+  .ap-matrix-details summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 28px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+  .ap-matrix-details summary::-webkit-details-marker { display: none; }
+  .ap-matrix-details summary:hover { background: #faf9f7; }
+  .ap-matrix-details[open] summary { border-bottom: 1px solid var(--border); }
+
+  .summary-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .summary-left h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dark);
+  }
+  .summary-left span {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--light);
+    font-weight: 700;
+  }
+  .summary-chevron {
+    color: var(--light);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .ap-matrix-details[open] .summary-chevron { transform: rotate(180deg); }
+
+  .ap-matrix-body { padding: 28px 32px; }
+  .ap-matrix-body p.matrix-intro {
+    font-size: 13px;
+    color: var(--mid);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .matrix-table-wrap { overflow-x: auto; }
+  .matrix-table {
+    border-collapse: collapse;
+    font-size: 12px;
+    min-width: 480px;
+  }
+  .matrix-table th, .matrix-table td {
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .matrix-table thead th {
+    background: var(--dark);
+    color: var(--white);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .matrix-table tbody th {
+    background: var(--bg);
+    font-weight: 700;
+    text-align: left;
+    color: var(--mid);
+    font-size: 12px;
+  }
+  .matrix-table tbody tr:hover td { filter: brightness(0.96); }
+  .m-h { background: var(--ap-h-bg); color: var(--ap-h-text); font-weight: 700; border-color: var(--ap-h-border); }
+  .m-m { background: var(--ap-m-bg); color: var(--ap-m-text); font-weight: 700; border-color: var(--ap-m-border); }
+  .m-l { background: var(--ap-l-bg); color: var(--ap-l-text); font-weight: 700; border-color: var(--ap-l-border); }
+  .b-group-sep td, .b-group-sep th { border-top: 2px solid var(--dark) !important; }
+
+  /* LEGAL NOTICE */
+  .legal-notice {
+    background: var(--accent-light);
+    border: 1px solid #c5d8ec;
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin-bottom: 44px;
+  }
+  .legal-notice-header {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .legal-notice p { font-size: 13px; color: var(--mid); line-height: 1.7; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--light);
+  }
+  .empty-state p { font-size: 15px; margin-bottom: 24px; }
+
+  /* FOOTER */
+  footer { background: var(--dark); padding: 40px 60px; }
+  .footer-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  footer p { font-size: 13px; color: rgba(255,255,255,0.35); }
+  footer a { color: rgba(255,255,255,0.45); text-decoration: none; font-size: 13px; }
+  footer a:hover { color: rgba(255,255,255,0.8); }
+  .footer-links { display: flex; gap: 24px; }
+
+  /* FMEA TYPE BAR */
+  .fmea-type-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+  .fmea-type-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--light);
+    font-weight: 700;
+  }
+  .fmea-type-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8a8a' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 12px center;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 9px 36px 9px 14px;
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dark);
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+    min-width: 220px;
+  }
+  .fmea-type-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(44,95,138,0.1); }
+
+  /* PROJEKT HEADER BLOCK */
+  .projekt-block {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+  }
+  .projekt-block-title {
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .projekt-block-title::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .projekt-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .projekt-field { display: flex; flex-direction: column; gap: 5px; }
+  .projekt-field label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--light);
+    font-weight: 700;
+  }
+  .projekt-field input {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--dark);
+    background: var(--bg);
+    outline: none;
+    transition: all 0.15s;
+  }
+  .projekt-field input:focus {
+    border-color: var(--accent);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(44,95,138,0.1);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .nav-links { gap: 16px; }
+    .page-header { padding: 40px 20px 36px; }
+    .main { padding: 32px 20px 60px; }
+    footer { padding: 30px 20px; }
+    .footer-inner { flex-direction: column; text-align: center; }
+    .fmea-type-bar { flex-direction: column; align-items: flex-start; }
+  }
+
+  /* BAE HEADER clickable */
+  .th-bae-click {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+  }
+  .th-bae-click:hover { opacity: 0.8; }
+
+  /* TOOLTIP */
+  .bae-tooltip {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+    padding: 0;
+    min-width: 260px;
+    max-width: 320px;
+    font-family: 'Lato', sans-serif;
+  }
+  .bae-tooltip.visible { display: block; }
+  .tooltip-header {
+    background: var(--dark);
+    color: var(--white);
+    padding: 10px 16px;
+    border-radius: 7px 7px 0 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .tooltip-body { padding: 8px 0; }
+  .tooltip-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 4px 16px;
+    font-size: 12px;
+    line-height: 1.4;
+    border-bottom: 1px solid var(--border);
+  }
+  .tooltip-row:last-child { border-bottom: none; }
+  .tooltip-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 18px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .tooltip-desc { color: var(--mid); font-weight: 300; }
+
+  /* 7-SCHRITTE BLOCK */
+  .steps-details {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .steps-details summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 28px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+  .steps-details summary::-webkit-details-marker { display: none; }
+  .steps-details summary:hover { background: #faf9f7; }
+  .steps-details[open] summary { border-bottom: 1px solid var(--border); }
+  .steps-details[open] .summary-chevron { transform: rotate(180deg); }
+  .steps-body { padding: 20px 28px; }
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .step-card {
+    display: flex;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--bg);
+  }
+  .step-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    min-width: 28px;
+    padding-top: 2px;
+  }
+  .step-content h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 4px;
+  }
+  .step-content p {
+    font-size: 12px;
+    color: var(--light);
+    line-height: 1.5;
+  }
+
+  /* PRINT LABEL – hidden on screen, visible on print */
+  .status-print-label { display: none; }
+
+  /* PRINT */
+  @media print {
+    *, *::before, *::after {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    nav, .btn-group, .col-action, .empty-state,
+    .ap-matrix-details, .legend, footer,
+    .legal-notice, .info-grid, .fmea-type-bar { display: none !important; }
+
+    body { background: #fff; font-size: 7px; }
+
+    .page-header {
+      padding: 8px 12px 6px;
+      border-bottom: 1px solid #ccc;
+      position: static;
+    }
+    .page-header h1 { font-size: 16pt; margin-bottom: 3px; }
+    .page-header p  { font-size: 7px; }
+
+    .main { padding: 6px 8px; max-width: 100%; }
+
+    .projekt-block {
+      margin-bottom: 8px;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      page-break-inside: avoid;
+    }
+    .projekt-grid { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .projekt-field label { font-size: 6px; }
+    .projekt-field input {
+      border: none;
+      border-bottom: 1px solid #aaa;
+      border-radius: 0;
+      background: transparent;
+      padding: 1px 0;
+      font-size: 7px;
+    }
+
+    .section-header { margin-bottom: 6px; padding-bottom: 6px; }
+    .section-header h2 { font-size: 11pt; }
+
+    .table-wrapper {
+      overflow: visible;
+      box-shadow: none;
+      border: 1px solid #bbb;
+      border-radius: 0;
+    }
+
+    table {
+      min-width: 0 !important;
+      width: 100%;
+      font-size: 7px;
+      table-layout: fixed;
+    }
+
+    thead { display: table-header-group; }
+
+    thead tr.th-groups th { padding: 3px 4px; font-size: 6px; }
+    thead tr.th-cols th   { padding: 3px 4px; font-size: 6px; }
+    thead th .th-sub { font-size: 5px; }
+
+    tbody td { padding: 3px 4px; }
+    tbody tr { page-break-inside: avoid; }
+
+    td input[type="text"],
+    td input[type="number"],
+    td input[type="date"] {
+      padding: 0;
+      font-size: 7px;
+      border: none !important;
+      box-shadow: none !important;
+      background: transparent !important;
+    }
+
+    /* Column widths for A4 landscape (~277mm usable) */
+    .td-num    { width: 14px; font-size: 7px; }
+    .col-text  { min-width: 60px; width: auto; }
+    .col-bae   { width: 22px; }
+    .col-ap    { width: 44px; }
+    .col-verant{ min-width: 55px; }
+    .col-termin{ width: 48px; }
+
+    /* Status: hide the <select>, show the plain-text label */
+    .status-select      { display: none !important; }
+    .status-print-label {
+      display: inline-block !important;
+      font-size: 7px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 10px;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+    .status-print-label.s-offen        { background: var(--ap-h-bg); color: var(--ap-h-text); border-color: var(--ap-h-border); }
+    .status-print-label.s-bearbeitung  { background: var(--ap-m-bg); color: var(--ap-m-text); border-color: var(--ap-m-border); }
+    .status-print-label.s-abgeschlossen{ background: var(--ap-l-bg); color: var(--ap-l-text); border-color: var(--ap-l-border); }
+
+    .ap-badge { padding: 2px 5px; font-size: 7px; }
+    .ap-badge::before { width: 5px; height: 5px; }
+  }
+</style>
+<style>@page { size: A4 landscape; margin: 8mm 12mm; }</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-name">Bastian Leicht</a>
+  <div class="nav-links">
+    <a href="index.html">Start</a>
+    <a href="index.html#tools">Tools</a>
+    <a href="impressum.html">Impressum</a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-tag">Qualitätsmanagement · AIAG &amp; VDA 2019</div>
+    <h1>Interaktives <em>FMEA-Tool</em></h1>
+    <p>Failure Mode and Effects Analysis auf Basis des AIAG &amp; VDA FMEA-Handbuchs 2019. Bewertung über Action Priority (AP) – kein RPN/RPZ.</p>
+    <div class="fmea-type-bar">
+      <span class="fmea-type-label">FMEA-Typ</span>
+      <select class="fmea-type-select" id="fmeaTypeSelect" onchange="updateFmeaType()">
+        <option value="pfmea">P-FMEA (Prozess-FMEA)</option>
+        <option value="dfmea">D-FMEA (Design-FMEA)</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- PROJEKT HEADER -->
+  <div class="projekt-block">
+    <div class="projekt-block-title">Projektdaten</div>
+    <div class="projekt-grid">
+      <div class="projekt-field">
+        <label for="proj-name">Projektname</label>
+        <input type="text" id="proj-name" placeholder="Projektname …">
+      </div>
+      <div class="projekt-field">
+        <label for="proj-art">Artikelnummer</label>
+        <input type="text" id="proj-art" placeholder="Artikelnummer …">
+      </div>
+      <div class="projekt-field">
+        <label for="proj-ersteller">Ersteller</label>
+        <input type="text" id="proj-ersteller" placeholder="Name …">
+      </div>
+      <div class="projekt-field">
+        <label for="proj-datum">Datum</label>
+        <input type="date" id="proj-datum">
+      </div>
+      <div class="projekt-field">
+        <label for="proj-rev">Revisionsstand</label>
+        <input type="text" id="proj-rev" placeholder="z. B. Rev. A …">
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 SCHRITTE -->
+  <details class="steps-details">
+    <summary>
+      <div class="summary-left">
+        <h3 style="font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--dark)">7-Schritte-Ansatz nach AIAG &amp; VDA 2019</h3>
+        <span style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--light);font-weight:700">Methodik</span>
+      </div>
+      <svg class="summary-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </summary>
+    <div class="steps-body">
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Planung und Vorbereitung</h4>
+            <p>Projektumfang, Analysegrenzen und Verantwortlichkeiten festlegen. Zeitplan und Ressourcen definieren.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Strukturanalyse</h4>
+            <p>System in Elemente zerlegen. Systemstruktur und Systemstrukturbaum (Prozess- oder Produktstruktur) aufbauen.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Funktionsanalyse</h4>
+            <p>Funktionen und Anforderungen der Strukturelemente bestimmen. Funktionsstruktur und Funktionsnetz aufbauen.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>Fehleranalyse</h4>
+            <p>Fehlerfolgen, Fehlerarten und Fehlerursachen identifizieren. Fehlerstruktur und Fehlernetz ableiten.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h4>Risikoanalyse</h4>
+            <p>Bestehende Maßnahmen identifizieren und bewerten. Action Priority (AP) anhand der Bewertungsfelder B, A, E bestimmen.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">6</div>
+          <div class="step-content">
+            <h4>Optimierung</h4>
+            <p>Maßnahmen zur Risikominimierung festlegen, Verantwortliche und Termine benennen. Neubewertung nach Umsetzung.</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">7</div>
+          <div class="step-content">
+            <h4>Ergebnisdokumentation</h4>
+            <p>Ergebnisse kommunizieren, FMEA-Bericht erstellen und archivieren. Wirksamkeit der Maßnahmen bestätigen.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- STATISTICS ROW 1: AP -->
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-card-label">Einträge gesamt</div>
+      <div class="info-card-value" id="statTotal">0</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-label">AP Hoch</div>
+      <div class="info-card-value high" id="statHigh">0</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-label">AP Mittel</div>
+      <div class="info-card-value medium" id="statMedium">0</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-label">AP Niedrig</div>
+      <div class="info-card-value low" id="statLow">0</div>
+    </div>
+  </div>
+  <!-- STATISTICS ROW 2: Status -->
+  <div class="info-grid" style="margin-bottom:44px">
+    <div class="info-card">
+      <div class="info-card-label">Status: Offen</div>
+      <div class="info-card-value offen" id="statOffen">0</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-label">In Bearbeitung</div>
+      <div class="info-card-value bearb" id="statBearb">0</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-label">Abgeschlossen</div>
+      <div class="info-card-value abges" id="statAbges">0</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-label">AP-neu Hoch</div>
+      <div class="info-card-value high" id="statHighNeu">0</div>
+    </div>
+  </div>
+
+  <!-- TABLE SECTION -->
+  <div class="section-header">
+    <h2>Fehlerarten &amp; Bewertung</h2>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="exportXLSX()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Excel Export
+      </button>
+      <button class="btn btn-secondary" onclick="clearData()" style="color:#b91c1c;border-color:#fca5a5">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        Daten löschen
+      </button>
+      <button class="btn btn-secondary" onclick="window.print()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        PDF / Drucken
+      </button>
+      <button class="btn btn-primary" onclick="addRow()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Zeile hinzufügen
+      </button>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table id="fmeaTable">
+      <thead>
+        <!-- GROUP HEADER -->
+        <tr class="th-groups">
+          <th class="g-id" colspan="1"></th>
+          <th class="g-old" colspan="8" style="color:#fff">Erstbewertung</th>
+          <th class="g-mass" colspan="5" style="color:rgba(255,255,255,0.9)">Maßnahmen &amp; Status</th>
+          <th class="g-new" colspan="4" style="color:rgba(255,255,255,0.9)">Neubewertung</th>
+          <th class="g-act" colspan="1"></th>
+        </tr>
+        <!-- COLUMN HEADER -->
+        <tr class="th-cols">
+          <th style="width:36px">#</th>
+          <!-- Erstbewertung -->
+          <th class="g-old-col col-text" id="th-col1">Prozessschritt<span class="th-sub" id="th-col1-sub">Prozessschritt / Arbeitsgang</span></th>
+          <th class="g-old-col col-text" id="th-col2">Fehlerart<span class="th-sub" id="th-col2-sub">Wie kann es versagen?</span></th>
+          <th class="g-old-col col-text" id="th-col3">Fehlerfolge<span class="th-sub" id="th-col3-sub">Auswirkung auf Kunden</span></th>
+          <th class="g-old-col col-text" id="th-col4">Fehlerursache<span class="th-sub" id="th-col4-sub">Ursache des Versagens</span></th>
+          <th class="g-old-col col-bae th-bae-click" style="text-align:center" onclick="showTooltip(event,'B')" title="Bewertungskriterien anzeigen">B<span class="th-sub">Bedeutung</span></th>
+          <th class="g-old-col col-bae th-bae-click" style="text-align:center" onclick="showTooltip(event,'A')" title="Bewertungskriterien anzeigen">A<span class="th-sub">Auftreten</span></th>
+          <th class="g-old-col col-bae th-bae-click" style="text-align:center" onclick="showTooltip(event,'E')" title="Bewertungskriterien anzeigen">E<span class="th-sub">Entdeckung</span></th>
+          <th class="g-old-col col-ap" style="text-align:center">AP<span class="th-sub">Action Priority</span></th>
+          <!-- Maßnahmen -->
+          <th class="g-mass-col col-text">Vermeidungs&shy;maßnahmen<span class="th-sub">Ursache verhindern</span></th>
+          <th class="g-mass-col col-text">Entdeckungs&shy;maßnahmen<span class="th-sub">Fehler erkennen</span></th>
+          <th class="g-mass-col col-verant">Verantwortlicher<span class="th-sub">Name / Abteilung</span></th>
+          <th class="g-mass-col col-termin">Termin<span class="th-sub">Zieldatum</span></th>
+          <th class="g-mass-col col-status" style="text-align:center">Status<span class="th-sub">Maßnahmenstatus</span></th>
+          <!-- Neubewertung -->
+          <th class="g-new-col col-bae th-bae-click" style="text-align:center" onclick="showTooltip(event,'B')" title="Bewertungskriterien anzeigen">B-neu<span class="th-sub">Bedeutung</span></th>
+          <th class="g-new-col col-bae th-bae-click" style="text-align:center" onclick="showTooltip(event,'A')" title="Bewertungskriterien anzeigen">A-neu<span class="th-sub">Auftreten</span></th>
+          <th class="g-new-col col-bae th-bae-click" style="text-align:center" onclick="showTooltip(event,'E')" title="Bewertungskriterien anzeigen">E-neu<span class="th-sub">Entdeckung</span></th>
+          <th class="g-new-col col-ap" style="text-align:center">AP-neu<span class="th-sub">Action Priority</span></th>
+          <!-- Aktion -->
+          <th class="col-action"></th>
+        </tr>
+      </thead>
+      <tbody id="fmeaBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState">
+      <div style="margin-bottom:16px;opacity:0.3">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+      </div>
+      <p>Noch keine Einträge vorhanden.</p>
+      <button class="btn btn-primary" onclick="addRow()">Erste Zeile hinzufügen</button>
+    </div>
+  </div>
+
+  <!-- AP TEXT LEGEND -->
+  <div class="legend">
+    <h3>Action-Priority-Legende (AIAG &amp; VDA 2019)</h3>
+    <div class="legend-grid">
+      <div class="legend-item high">
+        <div class="legend-dot"></div>
+        <div>
+          <h4>Hoch (H) – Sofortiger Handlungsbedarf</h4>
+          <p>Das Team muss sofortige Maßnahmen zur Verbesserung von B, A oder E einleiten oder die Entscheidung begründet dokumentieren.</p>
+        </div>
+      </div>
+      <div class="legend-item medium">
+        <div class="legend-dot"></div>
+        <div>
+          <h4>Mittel (M) – Handlungsbedarf</h4>
+          <p>Das Team sollte Maßnahmen zur Verbesserung von B, A oder E einleiten oder die Entscheidung begründet dokumentieren.</p>
+        </div>
+      </div>
+      <div class="legend-item low">
+        <div class="legend-dot"></div>
+        <div>
+          <h4>Niedrig (L) – Kein priorisierter Handlungsbedarf</h4>
+          <p>Das Team kann Verbesserungsmaßnahmen in Betracht ziehen. Eine Begründung ist empfehlenswert.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AP MATRIX (COLLAPSIBLE) -->
+  <details class="ap-matrix-details">
+    <summary>
+      <div class="summary-left">
+        <h3>Vollständige AP-Lookup-Matrix</h3>
+        <span>AIAG &amp; VDA 2019 · Alle B/A/E-Kombinationen</span>
+      </div>
+      <svg class="summary-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </summary>
+    <div class="ap-matrix-body">
+      <p class="matrix-intro">
+        Die Action Priority ergibt sich aus der Kombination von B (Bedeutung der Fehlerfolge), A (Auftreten der Fehlerursache) und E (Entdeckung des Fehlers). Die nachfolgende Tabelle zeigt alle Bewertungsbereiche gemäß AIAG &amp; VDA FMEA-Handbuch, 1. Ausgabe 2019.
+      </p>
+      <div class="matrix-table-wrap">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>B (Bedeutung)</th>
+              <th>A (Auftreten)</th>
+              <th>E 1–3<br><span style="font-weight:300;font-size:10px">leicht entdeckbar</span></th>
+              <th>E 4–6<br><span style="font-weight:300;font-size:10px">mäßig entdeckbar</span></th>
+              <th>E 7–10<br><span style="font-weight:300;font-size:10px">schwer entdeckbar</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- B 9-10 -->
+            <tr class="b-group-sep">
+              <th rowspan="4">9–10<br><span style="font-weight:300;font-size:10px;color:#888">Sicherheit / Gesetz</span></th>
+              <th>6–10</th>
+              <td class="m-h">H</td><td class="m-h">H</td><td class="m-h">H</td>
+            </tr>
+            <tr>
+              <th>4–5</th>
+              <td class="m-h">H</td><td class="m-h">H</td><td class="m-h">H</td>
+            </tr>
+            <tr>
+              <th>2–3</th>
+              <td class="m-h">H</td><td class="m-h">H</td><td class="m-h">H</td>
+            </tr>
+            <tr>
+              <th>1</th>
+              <td class="m-h">H</td><td class="m-h">H</td><td class="m-h">H</td>
+            </tr>
+            <!-- B 7-8 -->
+            <tr class="b-group-sep">
+              <th rowspan="4">7–8<br><span style="font-weight:300;font-size:10px;color:#888">Hohe Beeintr.</span></th>
+              <th>6–10</th>
+              <td class="m-h">H</td><td class="m-h">H</td><td class="m-h">H</td>
+            </tr>
+            <tr>
+              <th>4–5</th>
+              <td class="m-l">L</td><td class="m-m">M</td><td class="m-h">H</td>
+            </tr>
+            <tr>
+              <th>2–3</th>
+              <td class="m-l">L</td><td class="m-m">M</td><td class="m-h">H</td>
+            </tr>
+            <tr>
+              <th>1</th>
+              <td class="m-l">L</td><td class="m-l">L</td><td class="m-m">M</td>
+            </tr>
+            <!-- B 4-6 -->
+            <tr class="b-group-sep">
+              <th rowspan="4">4–6<br><span style="font-weight:300;font-size:10px;color:#888">Mäßige Beeintr.</span></th>
+              <th>6–10</th>
+              <td class="m-l">L</td><td class="m-m">M</td><td class="m-h">H</td>
+            </tr>
+            <tr>
+              <th>4–5</th>
+              <td class="m-l">L</td><td class="m-m">M</td><td class="m-m">M</td>
+            </tr>
+            <tr>
+              <th>2–3</th>
+              <td class="m-l">L</td><td class="m-l">L</td><td class="m-m">M</td>
+            </tr>
+            <tr>
+              <th>1</th>
+              <td class="m-l">L</td><td class="m-l">L</td><td class="m-l">L</td>
+            </tr>
+            <!-- B 1-3 -->
+            <tr class="b-group-sep">
+              <th rowspan="2">1–3<br><span style="font-weight:300;font-size:10px;color:#888">Geringe Beeintr.</span></th>
+              <th>6–10</th>
+              <td class="m-l">L</td><td class="m-l">L</td><td class="m-m">M</td>
+            </tr>
+            <tr>
+              <th>1–5</th>
+              <td class="m-l">L</td><td class="m-l">L</td><td class="m-l">L</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <!-- LEGAL NOTICE -->
+  <div class="legal-notice" style="margin-top:44px;margin-bottom:0">
+    <div class="legal-notice-header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Rechtlicher Hinweis
+    </div>
+    <p>
+      Dieses Tool dient ausschließlich zu Informations- und Unterstützungszwecken. Die berechneten Action-Priority-Werte ersetzen keine professionelle FMEA-Analyse durch qualifizierte Fachkräfte. Für die Richtigkeit, Vollständigkeit und Anwendbarkeit der Ergebnisse wird keine Haftung übernommen. Die Nutzung erfolgt auf eigene Verantwortung. Im Zweifel sind stets die offiziellen Normen und Richtlinien (AIAG &amp; VDA FMEA-Handbuch, 1. Ausgabe 2019) sowie firmeninterne Freigabeprozesse maßgeblich. Alle Eingaben verbleiben ausschließlich im Browser und werden nicht übertragen oder gespeichert.
+    </p>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <p>© 2025 Bastian Leicht · FMEA-Tool (AIAG &amp; VDA 2019) · Alle Daten bleiben lokal im Browser</p>
+    <div class="footer-links">
+      <a href="impressum.html">Impressum</a>
+      <a href="datenschutz.html">Datenschutz</a>
+    </div>
+  </div>
+</footer>
+
+<!-- TOOLTIP -->
+<div class="bae-tooltip" id="baeTooltip">
+  <div class="tooltip-header" id="tooltipTitle"></div>
+  <div class="tooltip-body" id="tooltipBody"></div>
+</div>
+
+<script>
+  // ── FMEA Type ───────────────────────────────────────────────────────────────
+  const TYPE_CONFIG = {
+    pfmea: {
+      col1:'Prozessschritt',  col1sub:'Prozessschritt / Arbeitsgang', col1ph:'Prozessschritt …',
+      col2:'Fehlerart',       col2sub:'Wie kann es versagen?',        col2ph:'Fehlerart …',
+      col3:'Fehlerfolge',     col3sub:'Auswirkung auf Kunden',        col3ph:'Fehlerfolge …',
+      col4:'Fehlerursache',   col4sub:'Ursache des Versagens',        col4ph:'Fehlerursache …',
+    },
+    dfmea: {
+      col1:'Bauteilfunktion', col1sub:'Bauteil / Komponente',         col1ph:'Bauteilfunktion …',
+      col2:'Versagensart',    col2sub:'Wie versagt das Bauteil?',     col2ph:'Versagensart …',
+      col3:'Versagensfolge',  col3sub:'Auswirkung auf System/Kunde',  col3ph:'Versagensfolge …',
+      col4:'Versagensursache',col4sub:'Ursache des Versagens',        col4ph:'Versagensursache …',
+    },
+  };
+  function currentType() { return document.getElementById('fmeaTypeSelect').value; }
+  function colPh(n) { return TYPE_CONFIG[currentType()][`col${n}ph`]; }
+  function updateFmeaType() {
+    const cfg = TYPE_CONFIG[currentType()];
+    for (let n=1; n<=4; n++) {
+      const th = document.getElementById(`th-col${n}`);
+      if (th) {
+        th.childNodes[0].textContent = cfg[`col${n}`];
+        const sub = document.getElementById(`th-col${n}-sub`);
+        if (sub) sub.textContent = cfg[`col${n}sub`];
+      }
+    }
+    document.querySelectorAll('.col1-input').forEach(i => i.placeholder = cfg.col1ph);
+    document.querySelectorAll('.col2-input').forEach(i => i.placeholder = cfg.col2ph);
+    document.querySelectorAll('.col3-input').forEach(i => i.placeholder = cfg.col3ph);
+    document.querySelectorAll('.col4-input').forEach(i => i.placeholder = cfg.col4ph);
+    queueSave();
+  }
+
+  // ── AP Lookup (AIAG & VDA FMEA Handbook 2019) ──────────────────────────────
+  function calcAP(b, a, e) {
+    if (!b || !a || !e) return null;
+    b = parseInt(b); a = parseInt(a); e = parseInt(e);
+    if (b<1||b>10||a<1||a>10||e<1||e>10) return null;
+    if (b >= 9) return 'H';
+    if (b >= 7) {
+      if (a >= 6) return 'H';
+      if (a >= 4) return e>=7?'H':e>=4?'M':'L';
+      if (a >= 2) return e>=7?'H':e>=4?'M':'L';
+      return e>=7?'M':'L';
+    }
+    if (b >= 4) {
+      if (a >= 6) return e>=7?'H':e>=4?'M':'L';
+      if (a >= 4) return e>=7?'M':e>=4?'M':'L';
+      if (a >= 2) return e>=7?'M':'L';
+      return 'L';
+    }
+    return a>=6&&e>=7?'M':'L';
+  }
+  function apBadge(ap) {
+    if (!ap) return '<span class="ap-badge ap-none">–</span>';
+    const map={H:['ap-h','Hoch'],M:['ap-m','Mittel'],L:['ap-l','Niedrig']};
+    const [cls,label]=map[ap];
+    return `<span class="ap-badge ${cls}">${label}</span>`;
+  }
+
+  // ── Row Management ──────────────────────────────────────────────────────────
+  let rowCount = 0;
+  let _loading = false;
+
+  function addRow(data) {
+    rowCount++;
+    const id = rowCount;
+    const body = document.getElementById('fmeaBody');
+    const tr = document.createElement('tr');
+    tr.id = `row-${id}`;
+    const statusVal = data?.status || 'offen';
+    tr.innerHTML = `
+      <td class="td-num">${id}</td>
+      <td class="col-text"><input type="text" class="col1-input" placeholder="${colPh(1)}" value="${esc(data?.col1)}"></td>
+      <td class="col-text"><input type="text" class="col2-input" placeholder="${colPh(2)}" value="${esc(data?.col2)}"></td>
+      <td class="col-text"><input type="text" class="col3-input" placeholder="${colPh(3)}" value="${esc(data?.col3)}"></td>
+      <td class="col-text"><input type="text" class="col4-input" placeholder="${colPh(4)}" value="${esc(data?.col4)}"></td>
+      <td class="col-bae"><input type="number" min="1" max="10" placeholder="–" id="b-${id}" oninput="updateAP(${id})" value="${esc(data?.b)}"></td>
+      <td class="col-bae"><input type="number" min="1" max="10" placeholder="–" id="a-${id}" oninput="updateAP(${id})" value="${esc(data?.a)}"></td>
+      <td class="col-bae"><input type="number" min="1" max="10" placeholder="–" id="e-${id}" oninput="updateAP(${id})" value="${esc(data?.e)}"></td>
+      <td class="col-ap" id="ap-${id}">${apBadge(calcAP(data?.b,data?.a,data?.e))}</td>
+      <td class="col-text"><input type="text" placeholder="Vermeidungsmaßnahmen …" value="${esc(data?.vermeid)}"></td>
+      <td class="col-text"><input type="text" placeholder="Entdeckungsmaßnahmen …" value="${esc(data?.entdeck)}"></td>
+      <td class="col-verant"><input type="text" placeholder="Name / Abt. …" value="${esc(data?.verant)}"></td>
+      <td class="col-termin"><input type="date" value="${esc(data?.termin)}"></td>
+      <td class="col-status">
+        <select id="status-${id}" class="status-select status-${statusVal}" onchange="updateStatus(${id})">
+          <option value="offen"${statusVal==='offen'?' selected':''}>Offen</option>
+          <option value="bearbeitung"${statusVal==='bearbeitung'?' selected':''}>In Bearbeitung</option>
+          <option value="abgeschlossen"${statusVal==='abgeschlossen'?' selected':''}>Abgeschlossen</option>
+        </select>
+      </td>
+      <td class="col-bae"><input type="number" min="1" max="10" placeholder="–" id="bn-${id}" oninput="updateAPNeu(${id})" value="${esc(data?.bn)}"></td>
+      <td class="col-bae"><input type="number" min="1" max="10" placeholder="–" id="an-${id}" oninput="updateAPNeu(${id})" value="${esc(data?.an)}"></td>
+      <td class="col-bae"><input type="number" min="1" max="10" placeholder="–" id="en-${id}" oninput="updateAPNeu(${id})" value="${esc(data?.en)}"></td>
+      <td class="col-ap" id="apn-${id}">${apBadge(calcAP(data?.bn,data?.an,data?.en))}</td>
+      <td class="col-action"><button class="btn btn-danger" onclick="deleteRow(${id})" title="Zeile löschen">✕</button></td>
+    `;
+    body.appendChild(tr);
+    updateEmptyState();
+    updateStats();
+    if (!data) tr.querySelector('input[type="text"]').focus();
+  }
+
+  function esc(v) { return v ? String(v).replace(/"/g,'&quot;').replace(/</g,'&lt;') : ''; }
+
+  function deleteRow(id) {
+    document.getElementById(`row-${id}`)?.remove();
+    renumberRows();
+    updateEmptyState();
+    updateStats();
+    queueSave();
+  }
+
+  function renumberRows() {
+    document.querySelectorAll('#fmeaBody tr').forEach((tr,i)=>{
+      const c=tr.querySelector('.td-num'); if(c) c.textContent=i+1;
+    });
+  }
+
+  function updateAP(id) {
+    const b=document.getElementById(`b-${id}`)?.value;
+    const a=document.getElementById(`a-${id}`)?.value;
+    const e=document.getElementById(`e-${id}`)?.value;
+    const cell=document.getElementById(`ap-${id}`);
+    if(cell) cell.innerHTML=apBadge(calcAP(b,a,e));
+    updateStats();
+  }
+
+  function updateAPNeu(id) {
+    const b=document.getElementById(`bn-${id}`)?.value;
+    const a=document.getElementById(`an-${id}`)?.value;
+    const e=document.getElementById(`en-${id}`)?.value;
+    const cell=document.getElementById(`apn-${id}`);
+    if(cell) cell.innerHTML=apBadge(calcAP(b,a,e));
+    updateStats();
+  }
+
+  function updateStatus(id) {
+    const sel=document.getElementById(`status-${id}`);
+    sel.className=`status-select status-${sel.value}`;
+    updateStats();
+    queueSave();
+  }
+
+  function updateEmptyState() {
+    const empty=document.getElementById('emptyState');
+    empty.style.display=document.querySelectorAll('#fmeaBody tr').length===0?'block':'none';
+  }
+
+  function updateStats() {
+    let total=0,high=0,medium=0,low=0,offen=0,bearb=0,abges=0,highNeu=0;
+    document.querySelectorAll('#fmeaBody tr').forEach(tr=>{
+      total++;
+      const b=tr.querySelector('[id^="ap-"]:not([id^="apn-"]) .ap-badge');
+      if(b){if(b.classList.contains('ap-h'))high++;else if(b.classList.contains('ap-m'))medium++;else if(b.classList.contains('ap-l'))low++;}
+      const s=tr.querySelector('.status-select');
+      if(s){if(s.value==='offen')offen++;else if(s.value==='bearbeitung')bearb++;else if(s.value==='abgeschlossen')abges++;}
+      const n=tr.querySelector('[id^="apn-"] .ap-badge');
+      if(n&&n.classList.contains('ap-h'))highNeu++;
+    });
+    document.getElementById('statTotal').textContent=total;
+    document.getElementById('statHigh').textContent=high;
+    document.getElementById('statMedium').textContent=medium;
+    document.getElementById('statLow').textContent=low;
+    document.getElementById('statOffen').textContent=offen;
+    document.getElementById('statBearb').textContent=bearb;
+    document.getElementById('statAbges').textContent=abges;
+    document.getElementById('statHighNeu').textContent=highNeu;
+  }
+
+  // ── Local Storage ───────────────────────────────────────────────────────────
+  const LS_KEY = 'fmea_state_v1';
+  let _saveTimer = null;
+
+  function queueSave() {
+    if (_loading) return;
+    clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(saveState, 400);
+  }
+
+  function saveState() {
+    const rows = [];
+    document.querySelectorAll('#fmeaBody tr').forEach(tr => {
+      const inp = tr.querySelectorAll('input[type="text"],input[type="date"]');
+      const num = tr.querySelectorAll('input[type="number"]');
+      const sel = tr.querySelector('.status-select');
+      rows.push({
+        col1:    inp[0]?.value||'',
+        col2:    inp[1]?.value||'',
+        col3:    inp[2]?.value||'',
+        col4:    inp[3]?.value||'',
+        vermeid: inp[4]?.value||'',
+        entdeck: inp[5]?.value||'',
+        verant:  inp[6]?.value||'',
+        termin:  inp[7]?.value||'',
+        b:  num[0]?.value||'', a:  num[1]?.value||'', e:  num[2]?.value||'',
+        bn: num[3]?.value||'', an: num[4]?.value||'', en: num[5]?.value||'',
+        status: sel?.value||'offen',
+      });
+    });
+    const state = {
+      version: 1,
+      fmeaType: currentType(),
+      proj: {
+        name:      document.getElementById('proj-name').value,
+        art:       document.getElementById('proj-art').value,
+        ersteller: document.getElementById('proj-ersteller').value,
+        datum:     document.getElementById('proj-datum').value,
+        rev:       document.getElementById('proj-rev').value,
+      },
+      rows,
+    };
+    try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e) {}
+  }
+
+  function loadState() {
+    let state;
+    try { state = JSON.parse(localStorage.getItem(LS_KEY)); } catch(e) {}
+    if (!state || state.version !== 1) return;
+    _loading = true;
+
+    // FMEA type
+    const sel = document.getElementById('fmeaTypeSelect');
+    if (state.fmeaType) { sel.value = state.fmeaType; updateFmeaType(); }
+
+    // Project fields
+    if (state.proj) {
+      document.getElementById('proj-name').value      = state.proj.name      || '';
+      document.getElementById('proj-art').value       = state.proj.art       || '';
+      document.getElementById('proj-ersteller').value = state.proj.ersteller || '';
+      document.getElementById('proj-datum').value     = state.proj.datum     || '';
+      document.getElementById('proj-rev').value       = state.proj.rev       || '';
+    }
+
+    // Rows
+    (state.rows || []).forEach(r => addRow(r));
+
+    _loading = false;
+  }
+
+  function clearData() {
+    if (!confirm('Alle Daten löschen und zurücksetzen?')) return;
+    localStorage.removeItem(LS_KEY);
+    document.getElementById('fmeaBody').innerHTML = '';
+    rowCount = 0;
+    ['proj-name','proj-art','proj-ersteller','proj-datum','proj-rev'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('fmeaTypeSelect').value = 'pfmea';
+    updateFmeaType();
+    updateEmptyState();
+    updateStats();
+  }
+
+  // Auto-save on any input/change in the page
+  document.addEventListener('input',  queueSave);
+  document.addEventListener('change', queueSave);
+
+  // ── XLSX Export via ExcelJS ─────────────────────────────────────────────────
+  async function exportXLSX() {
+    const rows = document.querySelectorAll('#fmeaBody tr');
+    if (rows.length === 0) { alert('Keine Daten zum Exportieren vorhanden.'); return; }
+
+    const cfg         = TYPE_CONFIG[currentType()];
+    const fmeaType    = currentType() === 'pfmea' ? 'P-FMEA (Prozess-FMEA)' : 'D-FMEA (Design-FMEA)';
+    const apLabelMap  = {H:'Hoch', M:'Mittel', L:'Niedrig'};
+    const stLabelMap  = {offen:'Offen', bearbeitung:'In Bearbeitung', abgeschlossen:'Abgeschlossen'};
+
+    // AP fill / font colours (ARGB: Alpha + RGB)
+    const AP_FILL = {
+      H: {type:'pattern', pattern:'solid', fgColor:{argb:'FFFF0000'}},
+      M: {type:'pattern', pattern:'solid', fgColor:{argb:'FFFFFF00'}},
+      L: {type:'pattern', pattern:'solid', fgColor:{argb:'FF00B050'}},
+    };
+    const AP_FONT = {
+      H: {bold:true, color:{argb:'FFFFFFFF'}},
+      M: {bold:true, color:{argb:'FF000000'}},
+      L: {bold:true, color:{argb:'FF000000'}},
+    };
+
+    const wb = new ExcelJS.Workbook();
+    wb.creator = 'FMEA-Tool – bastian-leicht.github.io';
+    const ws = wb.addWorksheet('FMEA', {views:[{showGridLines:true}]});
+
+    // Column widths
+    ws.columns = [
+      {width:4},{width:22},{width:18},{width:18},{width:18},
+      {width:5},{width:5},{width:5},{width:10},
+      {width:22},{width:22},{width:16},{width:12},{width:16},
+      {width:5},{width:5},{width:5},{width:10},
+    ];
+
+    // Helper: style a row's cells as meta label/value
+    const metaStyle = {font:{bold:true,color:{argb:'FF2C5F8A'}}, fill:{type:'pattern',pattern:'solid',fgColor:{argb:'FFE8F0F8'}}};
+    const addMeta = (k, v) => {
+      const r = ws.addRow([k, String(v||'')]);
+      r.getCell(1).font = metaStyle.font;
+      r.getCell(1).fill = metaStyle.fill;
+    };
+
+    addMeta('FMEA-Typ', fmeaType);
+    addMeta('Projektname',    document.getElementById('proj-name').value);
+    addMeta('Artikelnummer',  document.getElementById('proj-art').value);
+    addMeta('Ersteller',      document.getElementById('proj-ersteller').value);
+    addMeta('Datum',          document.getElementById('proj-datum').value);
+    addMeta('Revisionsstand', document.getElementById('proj-rev').value);
+    addMeta('Export',         new Date().toLocaleString('de-DE'));
+    ws.addRow([]); // blank separator
+
+    // Column header row
+    const headers = [
+      'Nr.', cfg.col1, cfg.col2, cfg.col3, cfg.col4,
+      'B','A','E','AP',
+      'Vermeidungsmaßnahmen','Entdeckungsmaßnahmen','Verantwortlicher','Termin','Status',
+      'B-neu','A-neu','E-neu','AP-neu',
+    ];
+    const hRow = ws.addRow(headers);
+    hRow.eachCell(cell => {
+      cell.font      = {bold:true, color:{argb:'FFFFFFFF'}};
+      cell.fill      = {type:'pattern', pattern:'solid', fgColor:{argb:'FF1B4F91'}};
+      cell.alignment = {horizontal:'center', vertical:'middle', wrapText:true};
+    });
+    hRow.height = 32;
+
+    // Data rows
+    rows.forEach((tr, i) => {
+      const inp = tr.querySelectorAll('input[type="text"],input[type="date"]');
+      const num = tr.querySelectorAll('input[type="number"]');
+      const sel = tr.querySelector('.status-select');
+      const b=num[0]?.value, a=num[1]?.value, e=num[2]?.value;
+      const bn=num[3]?.value, an=num[4]?.value, en=num[5]?.value;
+      const ap    = calcAP(b,a,e);
+      const apNeu = calcAP(bn,an,en);
+      const n = v => v ? Number(v) : null;
+
+      const dr = ws.addRow([
+        i+1,
+        inp[0]?.value||'', inp[1]?.value||'', inp[2]?.value||'', inp[3]?.value||'',
+        n(b), n(a), n(e),
+        ap ? apLabelMap[ap] : '',
+        inp[4]?.value||'', inp[5]?.value||'', inp[6]?.value||'', inp[7]?.value||'',
+        stLabelMap[sel?.value]||'',
+        n(bn), n(an), n(en),
+        apNeu ? apLabelMap[apNeu] : '',
+      ]);
+
+      // Colour AP cell (col 9, 1-based) and AP-neu (col 18)
+      [[9, ap],[18, apNeu]].forEach(([col, apVal]) => {
+        if (!apVal) return;
+        const cell = dr.getCell(col);
+        cell.fill = AP_FILL[apVal];
+        cell.font = AP_FONT[apVal];
+        cell.alignment = {horizontal:'center'};
+      });
+
+      // Alternating row background
+      if (i % 2 === 1) {
+        dr.eachCell({includeEmpty:true}, cell => {
+          if (!cell.fill || cell.fill.fgColor?.argb === 'FFFFFFFF' || !cell.fill.fgColor) {
+            cell.fill = {type:'pattern', pattern:'solid', fgColor:{argb:'FFFAF9F7'}};
+          }
+        });
+      }
+    });
+
+    // Freeze top rows (meta=7 + blank=1 + header=1 → freeze row 10)
+    ws.views = [{state:'frozen', xSplit:0, ySplit:9}];
+
+    // Download
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob   = new Blob([buffer], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const url    = URL.createObjectURL(blob);
+    const a2     = document.createElement('a');
+    a2.href      = url;
+    a2.download  = `FMEA_${new Date().toISOString().slice(0,10)}.xlsx`;
+    a2.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Tooltips for B / A / E (getrennt nach FMEA-Typ) ───────────────────────
+  const TOOLTIP_DATA = {
+    pfmea: {
+      B: { title:'B – Bedeutung (Severity) · P-FMEA', rows:[
+        [10,'Sicherheitsrelevant ohne Vorwarnung – Ausfallrisiko für Bediener/Kunden'],
+        [9, 'Sicherheitsrelevant mit Vorwarnung – gesetzliche Anforderung'],
+        [8, 'Primäre Prozessfunktion vollständig ausgefallen'],
+        [7, 'Primäre Prozessfunktion stark beeinträchtigt'],
+        [6, 'Sekundäre Prozessfunktion ausgefallen'],
+        [5, 'Sekundäre Prozessfunktion beeinträchtigt'],
+        [4, 'Merkliche Störung, Komforteinschränkung beim Kunden'],
+        [3, 'Störung von durchschnittlichem Kunden wahrnehmbar'],
+        [2, 'Störung nur von sensiblem Kunden wahrnehmbar'],
+        [1, 'Keine wahrnehmbaren Auswirkungen'],
+      ]},
+      A: { title:'A – Auftreten (Occurrence) · P-FMEA', rows:[
+        [10,'Nahezu sicher – ≥ 100.000 ppm (Fehler an fast jedem Teil)'],
+        [9, 'Sehr hoch – 50.000 ppm'],
+        [8, 'Hoch – 20.000 ppm'],
+        [7, 'Mäßig hoch – 10.000 ppm'],
+        [6, 'Mittel – 2.000 ppm'],
+        [5, 'Gering – 500 ppm'],
+        [4, 'Sehr gering – 100 ppm'],
+        [3, 'Äußerst gering – 10 ppm'],
+        [2, 'Fernliegend – ≤ 1 ppm'],
+        [1, 'Nahezu unmöglich – keine bekannte Fehlerursache'],
+      ]},
+      E: { title:'E – Entdeckung (Detection) · P-FMEA', rows:[
+        [10,'Keine Prüfung vorhanden – Fehler wird nicht entdeckt'],
+        [9, 'Zufällige Stichprobenprüfung, sehr geringe Wirksamkeit'],
+        [8, 'Visuelle Prüfung durch Bediener (gering)'],
+        [7, 'Doppelprüfung durch Bediener (geringe Wirksamkeit)'],
+        [6, 'Statistische Prozesskontrolle (SPC), gering'],
+        [5, 'Attribute-Prüfmittel (Lehren), mäßig'],
+        [4, 'Variable Prüfmittel, mäßig hohe Wirksamkeit'],
+        [3, 'Fehlersichere Prüfeinrichtung (hoch)'],
+        [2, 'Fehlersichere Einrichtung mit Rückkopplung (sehr hoch)'],
+        [1, 'Fehler kann nicht entstehen oder wird sicher erkannt (Poka-Yoke)'],
+      ]},
+    },
+    dfmea: {
+      B: { title:'B – Bedeutung (Severity) · D-FMEA', rows:[
+        [10,'Sicherheitsrelevant ohne Vorwarnung – Systemausfall mit Personengefährdung'],
+        [9, 'Sicherheitsrelevant mit Vorwarnung – gesetzliche Anforderung verletzt'],
+        [8, 'Primäre Produktfunktion vollständig ausgefallen'],
+        [7, 'Primäre Produktfunktion stark beeinträchtigt'],
+        [6, 'Sekundäre Produktfunktion ausgefallen'],
+        [5, 'Sekundäre Produktfunktion beeinträchtigt'],
+        [4, 'Störung wahrnehmbar, Komfort-/Optikeinschränkung'],
+        [3, 'Störung von Durchschnittskunden bemerkt'],
+        [2, 'Störung nur von sensiblem Kunden bemerkt'],
+        [1, 'Keine wahrnehmbaren Auswirkungen'],
+      ]},
+      A: { title:'A – Auftreten (Occurrence) · D-FMEA', rows:[
+        [10,'≥ 100.000 ppm – Maßnahme ohne nachgewiesene Wirksamkeit'],
+        [9, '50.000 ppm – Sehr hohe Versagensrate, geringe Designreife'],
+        [8, '20.000 ppm – Vergleichbare Technologie mit bekannten Problemen'],
+        [7, '10.000 ppm – Vergleichbare Technologie mit einzelnen Ausfällen'],
+        [6, '2.000 ppm – Ähnliche Technologie mit wenigen Ausfällen'],
+        [5, '500 ppm – Bewährte Technologie mit guter Felderfahrung'],
+        [4, '100 ppm – Ausgereifte Technologie, Ausfälle selten'],
+        [3, '10 ppm – Sehr ausgereifte Technologie'],
+        [2, '≤ 1 ppm – Nahezu fehlerfreie Technologie (nachgewiesen)'],
+        [1, 'Nahezu unmöglich – physikalisch oder konstruktiv ausgeschlossen'],
+      ]},
+      E: { title:'E – Entdeckung (Detection) · D-FMEA', rows:[
+        [10,'Keine Nachweismöglichkeit – kein Prüfplan vorhanden'],
+        [9, 'Kein Prüfplan, vereinzelte Konzeptprüfungen'],
+        [8, 'Design-Review ohne Analyse (geringe Erkennungschance)'],
+        [7, 'Design-Review mit Checkliste, keine Simulation'],
+        [6, 'Subsystem-Test, kein Nachweis am Gesamtsystem'],
+        [5, 'Komponententest am Prototyp unter Kundenbedingungen'],
+        [4, 'Komponententest unter Laborbedingungen'],
+        [3, 'Robuste CAE-Simulation oder umfangreiches Testprogramm'],
+        [2, 'Mehrfache unabhängige Prüfmethoden mit hoher Genauigkeit'],
+        [1, 'Fehler durch Design physikalisch unmöglich / nachgewiesen'],
+      ]},
+    },
+  };
+
+  let _tooltipOpen = null;
+
+  function showTooltip(evt, key) {
+    evt.stopPropagation();
+    const tip = document.getElementById('baeTooltip');
+    const tipKey = currentType() + '_' + key;
+    if (_tooltipOpen === tipKey && tip.classList.contains('visible')) {
+      closeTooltip(); return;
+    }
+    _tooltipOpen = tipKey;
+    const data = TOOLTIP_DATA[currentType()][key];
+    document.getElementById('tooltipTitle').textContent = data.title;
+    document.getElementById('tooltipBody').innerHTML = data.rows.map(([val, desc]) =>
+      `<div class="tooltip-row"><span class="tooltip-val">${val}</span><span class="tooltip-desc">${desc}</span></div>`
+    ).join('');
+
+    tip.classList.add('visible');
+
+    // Position near the clicked element
+    const rect = evt.currentTarget.getBoundingClientRect();
+    const tipW = 300;
+    let left = rect.left + rect.width / 2 - tipW / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - tipW - 8));
+    let top = rect.bottom + 8;
+    if (top + 380 > window.innerHeight) top = rect.top - 388;
+    tip.style.left = left + 'px';
+    tip.style.top  = top + 'px';
+    tip.style.width = tipW + 'px';
+  }
+
+  function closeTooltip() {
+    document.getElementById('baeTooltip').classList.remove('visible');
+    _tooltipOpen = null;
+  }
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.bae-tooltip') && !e.target.closest('.th-bae-click')) closeTooltip();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTooltip(); });
+
+  // ── Print helpers ───────────────────────────────────────────────────────────
+  const STATUS_LABELS = {
+    offen:'Offen', bearbeitung:'In Bearbeitung', abgeschlossen:'Abgeschlossen',
+  };
+  function injectPrintLabels() {
+    document.querySelectorAll('.status-select').forEach(sel => {
+      let lbl = sel.parentElement.querySelector('.status-print-label');
+      if (!lbl) { lbl = document.createElement('span'); sel.parentElement.appendChild(lbl); }
+      lbl.textContent = STATUS_LABELS[sel.value] || sel.value;
+      lbl.className = `status-print-label s-${sel.value}`;
+    });
+  }
+  function removePrintLabels() {
+    document.querySelectorAll('.status-print-label').forEach(el => el.remove());
+  }
+  window.addEventListener('beforeprint', injectPrintLabels);
+  window.addEventListener('afterprint',  removePrintLabels);
+
+  // ── Init ────────────────────────────────────────────────────────────────────
+  loadState();
+  updateEmptyState();
+  updateFmeaType();
+</script>
+</body>
+</html>
