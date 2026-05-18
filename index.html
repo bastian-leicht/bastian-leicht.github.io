@@ -51,6 +51,7 @@
     --accent: #2c5f8a;
     --accent-light: #e8f0f8;
     --border: #e5e0d8;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -111,7 +112,7 @@
     text-transform: uppercase;
     color: var(--light);
     text-decoration: none;
-    transition: color 0.2s;
+    transition: color 150ms ease;
     font-weight: 700;
   }
 
@@ -301,17 +302,24 @@
     padding: 28px;
     text-decoration: none;
     color: inherit;
-    transition: all 0.25s ease;
+    transition: transform 200ms var(--ease-out), box-shadow 200ms ease-out, border-color 150ms ease;
     display: flex;
     flex-direction: column;
     gap: 10px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.05);
   }
 
-  .tool-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--accent);
-    box-shadow: 0 8px 28px rgba(44,95,138,0.12);
+  @media (hover: hover) and (pointer: fine) {
+    .tool-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 28px rgba(44,95,138,0.12);
+    }
+  }
+
+  .tool-card:active {
+    transform: scale(0.97);
+    transition: transform 100ms var(--ease-out);
   }
 
   .tool-card-icon { font-size: 26px; }
@@ -351,7 +359,7 @@
     margin-top: 6px;
   }
 
-  .tool-card-link::after { content: '→'; transition: transform 0.2s; }
+  .tool-card-link::after { content: '→'; transition: transform 200ms var(--ease-out); }
   .tool-card:hover .tool-card-link::after { transform: translateX(4px); }
 
   .tool-card.coming-soon {
@@ -390,17 +398,28 @@
   /* FADE IN */
   .fade-in {
     opacity: 0;
-    transform: translateY(14px);
-    animation: fadeIn 0.6s ease forwards;
+    transform: translateY(8px) scale(0.95);
+    animation: fadeIn 240ms var(--ease-out) forwards;
   }
 
-  @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
-  .fade-in:nth-child(1) { animation-delay: 0.05s; }
-  .fade-in:nth-child(2) { animation-delay: 0.15s; }
-  .fade-in:nth-child(3) { animation-delay: 0.25s; }
-  .fade-in:nth-child(4) { animation-delay: 0.35s; }
-  .fade-in:nth-child(5) { animation-delay: 0.45s; }
-  .fade-in:nth-child(6) { animation-delay: 0.55s; }
+  @keyframes fadeIn { to { opacity: 1; transform: translateY(0) scale(1); } }
+  .fade-in:nth-child(1) { animation-delay: 40ms; }
+  .fade-in:nth-child(2) { animation-delay: 100ms; }
+  .fade-in:nth-child(3) { animation-delay: 160ms; }
+  .fade-in:nth-child(4) { animation-delay: 220ms; }
+  .fade-in:nth-child(5) { animation-delay: 280ms; }
+  .fade-in:nth-child(6) { animation-delay: 340ms; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fade-in {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    .tool-card, .linkedin-btn {
+      transition: none;
+    }
+  }
 
   @media (max-width: 768px) {
     nav { padding: 0 20px; }
@@ -492,7 +511,7 @@
     font-weight: 700;
     font-family: 'Lato', sans-serif;
     margin-top: 32px;
-    transition: background 0.2s ease, transform 0.16s ease-out;
+    transition: background 150ms ease, transform 160ms var(--ease-out);
   }
 
   .linkedin-btn:hover { background: #245075; }
